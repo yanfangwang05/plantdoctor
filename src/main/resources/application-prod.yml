@@ -1,0 +1,41 @@
+# =============================================================================
+# Profile: prod
+#
+# Points PlantDoctor at a real database and the real recognition services.
+# Every value comes from the environment; see .env.example. Start with:
+#
+#   java -jar plantdoctor-1.0.0.jar --spring.profiles.active=prod
+#
+# WARNING: spring.sql.init.mode is "never" here on purpose. The production
+# database already contains the knowledge records; running schema.sql would drop
+# and recreate the table.
+# =============================================================================
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  sql:
+    init:
+      mode: never
+
+plantdoctor:
+  recognition:
+    mode: remote
+    remote:
+      base-url: ${RECOGNITION_BASE_URL}
+      token-path: ${RECOGNITION_TOKEN_PATH}
+      predict-path: ${RECOGNITION_PREDICT_PATH}
+      client-id: ${RECOGNITION_CLIENT_ID}
+      client-secret: ${RECOGNITION_CLIENT_SECRET}
+    corn-soy:
+      url: ${CORN_SOY_URL}
+      license: ${CORN_SOY_LICENSE}
+
+logging:
+  level:
+    cn.caas.plantdoctor: INFO

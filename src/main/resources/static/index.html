@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlantDoctor - reference implementation</title>
+<style>
+  :root {
+    --bg: #f6f7f4;
+    --panel: #ffffff;
+    --ink: #1e241f;
+    --muted: #6b746c;
+    --line: #dfe3dc;
+    --green: #2f6b3f;
+    --green-soft: #e6efe7;
+    --amber: #8a6d1f;
+    --amber-soft: #f7efd6;
+    --red: #8a2f2f;
+    --red-soft: #f8e3e3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  header {
+    padding: 22px 28px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header h1 { margin: 0 0 4px; font-size: 19px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    vertical-align: 2px;
+  }
+  .badge.mock { background: var(--amber-soft); border-color: #e6d9a8; color: var(--amber); }
+  .badge.live { background: var(--green-soft); border-color: #c6dccb; color: var(--green); }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 28px 60px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+  section h2 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  label { display: block; margin: 12px 0 4px; font-size: 13px; color: var(--muted); }
+  label:first-of-type { margin-top: 0; }
+  select, input[type=text], input[type=file] {
+    width: 100%;
+    padding: 8px 9px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: #fff;
+    font: inherit;
+    color: var(--ink);
+  }
+  button {
+    margin-top: 14px;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--green);
+    background: var(--green);
+    color: #fff;
+    border-radius: 5px;
+    font: inherit;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) { background: #275a35; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button.secondary {
+    background: #fff; color: var(--ink); border-color: var(--line);
+    margin-top: 8px;
+  }
+  .hint { margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .kv { display: grid; grid-template-columns: 150px 1fr; gap: 6px 12px; font-size: 13px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; word-break: break-word; }
+  .verdict { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .verdict .label { font-size: 20px; font-weight: 600; }
+  .verdict .score { color: var(--muted); font-size: 13px; }
+  .note {
+    padding: 9px 11px;
+    border-radius: 5px;
+    font-size: 12.5px;
+    margin-bottom: 12px;
+  }
+  .note.ok { background: var(--green-soft); color: #24512f; }
+  .note.warn { background: var(--amber-soft); color: var(--amber); }
+  .note.err { background: var(--red-soft); color: var(--red); }
+  details { margin-top: 14px; }
+  details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
+  pre {
+    margin: 8px 0 0;
+    padding: 11px;
+    background: #f2f4f0;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    font-size: 12px;
+    overflow-x: auto;
+    max-height: 320px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; }
+  td.num, th.num { text-align: right; }
+  .empty { color: var(--muted); font-size: 13px; }
+  .tag { font-size: 11px; padding: 0 6px; border-radius: 9px; background: var(--green-soft); color: var(--green); }
+  .tag.no { background: var(--red-soft); color: var(--red); }
+  p.small { font-size: 12.5px; color: var(--muted); margin: 0 0 10px; }
+  a { color: var(--green); }
+</style>
+</head>
+<body>
+<header>
+  <h1>PlantDoctor <span id="mode-badge" class="badge">loading</span></h1>
+  <p>Knowledge-enhanced diagnostic workflow for crop pests, diseases and weeds.</p>
+</header>
+
+<main>
+  <div class="grid">
+
+    <div>
+      <section>
+        <h2>Diagnose</h2>
+        <form id="diagnose-form">
+          <label for="cropType">Diagnostic category</label>
+          <select id="cropType" required></select>
+
+          <label for="file">Image</label>
+          <input id="file" type="file" accept="image/*" required>
+
+          <button id="submit" type="submit">Run diagnosis</button>
+          <p class="hint">
+            Uploaded images are stored under the configured upload directory. The
+            category decides the routing path (general or dedicated endpoint).
+          </p>
+        </form>
+      </section>
+
+      <section>
+        <h2>Look up by name</h2>
+        <label for="name">Pest, disease or weed name</label>
+        <input id="name" type="text" placeholder="e.g. 小麦条锈病">
+        <button id="lookup" type="button" class="secondary">Look up</button>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <h2>Result</h2>
+        <div id="result">
+          <p class="empty">No request yet.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Recent requests</h2>
+        <p class="small">
+          Every request is logged, including failures and labels without a knowledge
+          record, so the proportion of successful, failed and unmatched diagnoses can
+          be reported.
+        </p>
+        <div id="logs"><p class="empty">Nothing logged yet.</p></div>
+        <button id="reload-logs" type="button" class="secondary">Reload</button>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = { categories: [] };
+
+  function el(id) { return document.getElementById(id); }
+
+  function json(value) { return JSON.stringify(value, null, 2); }
+
+  function clear(node) { while (node.firstChild) { node.removeChild(node.firstChild); } }
+
+  function node(tag, text, cls) {
+    var n = document.createElement(tag);
+    if (text !== undefined && text !== null) { n.textContent = text; }
+    if (cls) { n.className = cls; }
+    return n;
+  }
+
+  function loadMeta() {
+    fetch("/api/meta").then(function (r) { return r.json(); }).then(function (res) {
+      var badge = el("mode-badge");
+      var mode = (res && res.data && res.data.recognitionMode) || "unknown";
+      badge.textContent = mode === "mock" ? "mode: mock (fixtures, not a model)" : "mode: " + mode;
+      badge.className = "badge " + (mode === "mock" ? "mock" : "live");
+    }).catch(function () {
+      el("mode-badge").textContent = "mode: unknown";
+    });
+  }
+
+  function loadCategories() {
+    fetch("/api/crop-types").then(function (r) { return r.json(); }).then(function (res) {
+      state.categories = (res && res.data) || [];
+      var select = el("cropType");
+      state.categories.forEach(function (c) {
+        var opt = document.createElement("option");
+        opt.value = c.key;
+        opt.textContent = c.displayName + " / " + c.displayNameZh + "  [" + c.path + "]";
+        select.appendChild(opt);
+      });
+    }).catch(function () {
+      el("cropType").appendChild(node("option", "Unable to load categories"));
+    });
+  }
+
+  function renderNote(kind, text) {
+    return node("div", text, "note " + kind);
+  }
+
+  function renderSuccess(res) {
+    var box = el("result");
+    clear(box);
+
+    var d = res.data || {};
+    var diagnosis = d.diagnosis || {};
+    var knowledge = d.diseaseData || {};
+
+    var verdict = node("div", null, "verdict");
+    verdict.appendChild(node("span", diagnosis.insectName || "(no label)", "label"));
+    if (typeof diagnosis.trustLevel === "number") {
+      verdict.appendChild(node("span", "confidence " + diagnosis.trustLevel.toFixed(4), "score"));
+    }
+    verdict.appendChild(node("span", "provider: " + (diagnosis.provider || "-"), "score"));
+    box.appendChild(verdict);
+
+    if (Object.keys(knowledge).length === 0) {
+      box.appendChild(renderNote("warn",
+        "The label was produced, but no knowledge record matched it. This request is " +
+        "logged with knowledgeMatched=false and does not count as a successful diagnosis."));
+    } else {
+      box.appendChild(renderNote("ok", "Knowledge record matched by name."));
+      var dl = node("dl", null, "kv");
+      var fields = [
+        ["Canonical name", knowledge.zhName],
+        ["Aliases", knowledge.zhAliasName],
+        ["Main harm crops", knowledge.mainHarmCrops],
+        ["Symptoms", knowledge.hazardSymptoms],
+        ["Causal agent / driver", knowledge.driver],
+        ["Prevention and control", knowledge.preventionMethods]
+      ];
+      fields.forEach(function (pair) {
+        if (!pair[1]) { return; }
+        dl.appendChild(node("dt", pair[0]));
+        dl.appendChild(node("dd", pair[1]));
+      });
+      box.appendChild(dl);
+    }
+
+    box.appendChild(node("p", "log id: " + (d.logId || "-"), "hint"));
+
+    var details = document.createElement("details");
+    details.appendChild(node("summary", "Raw response"));
+    details.appendChild(node("pre", json(res)));
+    box.appendChild(details);
+  }
+
+  function renderFailure(message) {
+    var box = el("result");
+    clear(box);
+    box.appendChild(renderNote("err", message || "Request failed."));
+  }
+
+  function submitDiagnosis(event) {
+    event.preventDefault();
+    var fileInput = el("file");
+    if (!fileInput.files || fileInput.files.length === 0) {
+      renderFailure("Choose an image first.");
+      return;
+    }
+    var body = new FormData();
+    body.append("file", fileInput.files[0]);
+    body.append("cropType", el("cropType").value);
+
+    var button = el("submit");
+    button.disabled = true;
+    button.textContent = "Running...";
+
+    fetch("/api/diagnosis", { method: "POST", body: body })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res && res.success) { renderSuccess(res); } else { renderFailure(res && res.message); }
+        loadLogs();
+      })
+      .catch(function (e) { renderFailure("Network error: " + e.message); })
+      .finally(function () {
+        button.disabled = false;
+        button.textContent = "Run diagnosis";
+      });
+  }
+
+  function lookupByName() {
+    var name = el("name").value.trim();
+    if (!name) { renderFailure("Enter a name first."); return; }
+    fetch("/api/knowledge?name=" + encodeURIComponent(name))
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res || !res.success) { renderFailure(res && res.message); return; }
+        renderSuccess({ success: true, data: { diagnosis: { provider: "knowledge lookup" }, diseaseData: res.data } });
+      })
+      .catch(function (e) { renderFailure("Network error: " + e.message); });
+  }
+
+  function loadLogs() {
+    fetch("/api/diagnosis/logs?limit=12")
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        var box = el("logs");
+        clear(box);
+        var rows = (res && res.data) || [];
+        if (rows.length === 0) { box.appendChild(node("p", "Nothing logged yet.", "empty")); return; }
+
+        var table = document.createElement("table");
+        var head = document.createElement("tr");
+        ["Time", "Category", "Label", "Confidence", "Knowledge"].forEach(function (h) {
+          head.appendChild(node("th", h));
+        });
+        table.appendChild(head);
+
+        rows.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.appendChild(node("td", String(row.createdAt || "").replace("T", " ").slice(0, 19)));
+          tr.appendChild(node("td", row.cropType || "-"));
+          tr.appendChild(node("td", row.insectName || "-"));
+          tr.appendChild(node("td", typeof row.trustLevel === "number" ? row.trustLevel.toFixed(3) : "-"));
+          var cell = document.createElement("td");
+          cell.appendChild(node("span", row.knowledgeMatched ? "matched" : "unmatched",
+            "tag" + (row.knowledgeMatched ? "" : " no")));
+          tr.appendChild(cell);
+          table.appendChild(tr);
+        });
+        box.appendChild(table);
+      })
+      .catch(function (e) { el("logs").textContent = "Unable to load logs: " + e.message; });
+  }
+
+  el("diagnose-form").addEventListener("submit", submitDiagnosis);
+  el("lookup").addEventListener("click", lookupByName);
+  el("reload-logs").addEventListener("click", loadLogs);
+
+  loadMeta();
+  loadCategories();
+  loadLogs();
+})();
+</script>
+</body>
+</html>

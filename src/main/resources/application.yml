@@ -1,0 +1,82 @@
+# =============================================================================
+# PlantDoctor - base configuration
+#
+# The default profile is "mock": the application starts with an embedded
+# database and bundled recognition fixtures, so no external service and no
+# credential is required. Nothing below needs to be edited to run the demo.
+#
+# Real deployments: see application-prod.yml and .env.example.
+# =============================================================================
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: plantdoctor
+  profiles:
+    active: mock
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 21MB
+
+  # Embedded database used by the demo. Dropped on shutdown.
+  datasource:
+    url: jdbc:h2:mem:plantdoctor;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # Schema and sample rows are applied at every start of the in-memory database.
+  # Overridden to "never" in the prod profile.
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: false
+
+  jackson:
+    default-property-inclusion: non_null
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+plantdoctor:
+  # Directory that receives uploaded images.
+  upload-dir: ${PLANTDOCTOR_UPLOAD_DIR:./uploads}
+
+  # Public URL under which /uploads/** is reachable. Required only when the
+  # general recognition contract is used, because that contract fetches the
+  # image by URL.
+  public-base-url: ${PLANTDOCTOR_PUBLIC_BASE_URL:}
+
+  recognition:
+    # mock    - bundled fixtures, offline, used by reviewers
+    # remote  - an external recognition API, configured per deployment
+    mode: mock
+    timeout-seconds: 30
+
+    remote:
+      base-url: ${RECOGNITION_BASE_URL:}
+      token-path: ${RECOGNITION_TOKEN_PATH:}
+      predict-path: ${RECOGNITION_PREDICT_PATH:}
+      client-id: ${RECOGNITION_CLIENT_ID:}
+      client-secret: ${RECOGNITION_CLIENT_SECRET:}
+
+    corn-soy:
+      url: ${CORN_SOY_URL:}
+      license: ${CORN_SOY_LICENSE:}
+
+logging:
+  level:
+    root: INFO
+    cn.caas.plantdoctor: INFO
+    org.springframework.jdbc.core: WARN

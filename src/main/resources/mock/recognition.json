@@ -1,0 +1,50 @@
+{
+  "_comment": [
+    "Fixtures for the offline recognition provider (plantdoctor.recognition.mode=mock).",
+    "These labels are NOT predictions. They are fixed answers that let a reader follow",
+    "the workflow upload -> route -> label -> knowledge lookup -> log without holding",
+    "credentials for the commercial recognition services.",
+    "",
+    "Accuracy figures in the paper were measured with the remote provider. Nothing computed from",
+    "this file may be reported as recognition accuracy.",
+    "",
+    "Lookup order: bySha256 -> byFileName -> defaultByCropType.",
+    "Keys of defaultByCropType are the category keys of InsectCropType."
+  ],
+
+  "_notes": {
+    "aliasFallback": "corn_borer_alias.jpg returns an alias (玉米钻心虫) rather than a canonical name, to demonstrate that knowledge linkage falls back to zh_alias_name.",
+    "unmatchedLabel": "unknown_lesion.jpg returns a label with no knowledge record, to demonstrate a successful recognition whose knowledge lookup is unmatched. Such a request is logged with knowledgeMatched=false and must not be counted as a successful diagnosis."
+  },
+
+  "bySha256": {},
+
+  "byFileName": {
+    "wheat_rust.jpg": {"insectName": "小麦条锈病", "trustLevel": 0.9899},
+    "wheat_powdery_mildew.jpg": {"insectName": "小麦白粉病", "trustLevel": 0.9712},
+    "corn_leaf_blight.jpg": {"insectName": "玉米大斑病", "trustLevel": 0.9645},
+    "rice_blast.jpg": {"insectName": "稻瘟病", "trustLevel": 0.9788},
+    "apple_canker.jpg": {"insectName": "苹果树腐烂病", "trustLevel": 0.9521},
+    "citrus_huanglongbing.jpg": {"insectName": "柑橘黄龙病", "trustLevel": 0.9402},
+    "grape_downy_mildew.jpg": {"insectName": "葡萄霜霉病", "trustLevel": 0.9655},
+    "soybean_cyst_nematode.jpg": {"insectName": "大豆胞囊线虫病", "trustLevel": 0.9317},
+    "fall_armyworm.jpg": {"insectName": "草地贪夜蛾", "trustLevel": 0.9912, "part": "leaf"},
+    "aphid.jpg": {"insectName": "蚜虫", "trustLevel": 0.9734, "part": "leaf"},
+    "barnyardgrass.jpg": {"insectName": "稗草", "trustLevel": 0.9508},
+    "corn_borer_alias.jpg": {"insectName": "玉米钻心虫", "trustLevel": 0.9611},
+    "unknown_lesion.jpg": {"insectName": "未收录的叶部斑害", "trustLevel": 0.4102}
+  },
+
+  "defaultByCropType": {
+    "APPLE": {"insectName": "苹果树腐烂病", "trustLevel": 0.9024},
+    "CITRUS": {"insectName": "柑橘黄龙病", "trustLevel": 0.9110},
+    "GRAPE": {"insectName": "葡萄霜霉病", "trustLevel": 0.9265},
+    "RICE": {"insectName": "稻瘟病", "trustLevel": 0.9341},
+    "WHEAT": {"insectName": "小麦条锈病", "trustLevel": 0.9288},
+    "INSECT": {"insectName": "蚜虫", "trustLevel": 0.8830, "part": "leaf"},
+    "YEE": {"insectName": "草地贪夜蛾", "trustLevel": 0.9556, "part": "leaf"},
+    "GRASS": {"insectName": "稗草", "trustLevel": 0.8912},
+    "SOYBEAN": {"insectName": "大豆胞囊线虫病", "trustLevel": 0.8775},
+    "CORN": {"insectName": "玉米大斑病", "trustLevel": 0.9203}
+  }
+}

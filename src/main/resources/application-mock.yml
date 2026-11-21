@@ -1,0 +1,14 @@
+# =============================================================================
+# Profile: mock  (default)
+#
+# Reproduces the complete workflow with no external dependency:
+#   * in-memory H2 seeded from schema.sql + data.sql
+#   * recognition answers served from mock/recognition.json
+#
+# The labels produced here are fixtures, NOT predictions. They exist so that a
+# reader can follow the workflow end to end. Accuracy figures reported in the
+# paper were obtained with the real providers (profile "prod").
+# =============================================================================
+plantdoctor:
+  recognition:
+    mode: mock
