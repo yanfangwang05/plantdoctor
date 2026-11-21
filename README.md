@@ -39,7 +39,7 @@ Expected startup output, in the offline profile:
 The following 1 profile is active: "mock"
 Tomcat started on port 8080 (http)
 Started PlantDoctorApplication in 2.1 seconds
-Mock recognition fixtures loaded: 0 by hash, 13 by file name, 10 category defaults
+Mock recognition fixtures loaded: 0 by hash, 13 by file name, 8 category defaults
 ```
 
 Health check:
