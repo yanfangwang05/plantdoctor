@@ -340,8 +340,7 @@ history was restarted rather than rewritten.
 
 ## 11. Note for the metadata table
 
-The code metadata table in the paper currently states JDK 8. This build requires
-**JDK 17**, because Spring Boot 3.3 and the Jakarta EE namespace require it. The
+This build requires **JDK 17**, because Spring Boot 3.3 and the Jakarta EE namespace require it. The
 table should be updated before resubmission; the requirement is asserted by
 `pom.xml` (`java.version=17`, `maven-compiler-plugin` release 17) and by CI-style
 verification in `scripts/smoke-test.sh`.
