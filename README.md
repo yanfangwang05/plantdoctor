@@ -131,8 +131,6 @@ against the code without reading Java sources.
 | INSECT | 虫体 | general | `crop_id=143` |
 | YEE | 草地贪夜蛾 | general | `crop_id=142` |
 | GRASS | 杂草 | general | `crop_id=2` |
-| SOYBEAN | 大豆 | dedicated | `imageType=15` |
-| CORN | 玉米 | dedicated | `imageType=14` |
 
 ### 3.2 Recognition contracts
 
@@ -384,9 +382,3 @@ java -jar target/plantdoctor-1.0.0.jar      # 默认 mock 模式
 curl -F "cropType=WHEAT" -F "file=@samples/wheat_rust.jpg" http://localhost:8080/api/diagnosis
 ./scripts/smoke-test.sh          # 编译 + 启动 + 25 项断言 + 关闭
 ```
-
-两点必须注意：
-
-1. **mock 模式的标签是预置答案，不是模型预测**，用 mock 结果算出的准确率没有意义；
-   论文中的准确率来自 `prod` 模式下的真实识别服务。
-2. 本地构建需要 **JDK 17**（Spring Boot 3.x 要求），论文元数据表中写的 JDK 8 需要同步更正。
