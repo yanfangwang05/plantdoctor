@@ -111,8 +111,8 @@ image + category
 
 ### 3.1 Routing table
 
-Ten categories are selectable by the user: seven crops (apple, citrus, grape,
-rice, wheat, soybean, corn) and three damage types (insect pest, fall armyworm,
+Ten categories are selectable by the user: five crops (apple, citrus, grape,
+rice, wheat) and three damage types (insect pest, fall armyworm,
 grass weed). Corn and soybean have no coverage on the general endpoint and are
 served by a separate contract, hence the two paths.
 
