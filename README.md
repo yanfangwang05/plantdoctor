@@ -29,7 +29,7 @@ mvn clean package
 java -jar target/plantdoctor-1.0.0.jar
 ```
 
-Then open <http://localhost:8080>. The web page lists the ten categories, lets you
+Then open <http://localhost:8080>. The web page lists the 8 categories, lets you
 upload an image, and shows the label, the linked knowledge record and the recent
 request log.
 
