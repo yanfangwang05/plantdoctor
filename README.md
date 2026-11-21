@@ -98,7 +98,6 @@ image + category
 [ routing ]  category -> provider identifier (Table 1)
       |
       +--> general path   (8 categories)  POST crop_id + image URL
-      +--> dedicated path (corn, soybean) multipart imageType + bytes
       |
       v
 [ label + confidence ]
